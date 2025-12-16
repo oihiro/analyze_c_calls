@@ -104,7 +104,7 @@ def find_definition(name: str, is_macro: bool = False) -> List[str]:
             grep_cmd,
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=30
         )
         
         lines = result.stdout.strip().split('\n') if result.stdout.strip() else []
