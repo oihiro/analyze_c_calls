@@ -168,29 +168,34 @@ def analyze_calls(func_name: str, file_path: str, line_num: int, depth: int = 0,
     if cache_key not in analyze_calls.output_cache:
         analyze_calls.output_cache[cache_key] = set()
     
-    for called_name in sorted(all_calls):
-        # 同じ関数のレベルで既に出力済みかチェック
-        if called_name not in analyze_calls.output_cache[cache_key]:
+    # マクロ呼び出しの処理（再帰なし、表示のみ）
+    for macro_name in sorted(macros):
+        if macro_name not in analyze_calls.output_cache[cache_key]:
+            print(f"{func_name} {macro_name}")
+            analyze_calls.output_cache[cache_key].add(macro_name)
+    
+    # 関数呼び出しの処理（再帰的に分析）
+    for func_call_name in sorted(functions):
+        if func_call_name not in analyze_calls.output_cache[cache_key]:
             # 出力：呼び出し元と呼び出し先をスペース区切り
-            print(f"{func_name} {called_name}")
-            analyze_calls.output_cache[cache_key].add(called_name)
+            print(f"{func_name} {func_call_name}")
+            analyze_calls.output_cache[cache_key].add(func_call_name)
         
         # 関数の場合のみ再帰的に処理
-        if called_name in functions:
-            grep_results = find_definition(called_name, is_macro=False)
-            
-            if not grep_results:
-                pass  # 定義が見つからない場合はスキップ
-            elif len(grep_results) == 1:
-                # 定義が1つ見つかった
-                parsed = parse_grep_output(grep_results[0])
-                if parsed:
-                    new_file_path, new_line_num = parsed
-                    analyze_calls(called_name, new_file_path, new_line_num, depth + 1, visited)
-            else:
-                # 定義が2個以上見つかった
-                for grep_line in grep_results:
-                    print(f"{grep_line}")
+        grep_results = find_definition(func_call_name, is_macro=False)
+        
+        if not grep_results:
+            pass  # 定義が見つからない場合はスキップ
+        elif len(grep_results) == 1:
+            # 定義が1つ見つかった
+            parsed = parse_grep_output(grep_results[0])
+            if parsed:
+                new_file_path, new_line_num = parsed
+                analyze_calls(func_call_name, new_file_path, new_line_num, depth + 1, visited)
+        else:
+            # 定義が2個以上見つかった
+            for grep_line in grep_results:
+                print(f"{grep_line}")
 
 
 def main():
