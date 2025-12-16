@@ -44,7 +44,7 @@ def extract_function_calls(file_path: str, start_line_num: int) -> Tuple[Set[str
     # 関数パターン: (\w+)\s*\(
     func_pattern = re.compile(r'(\w+)\s*\(')
     # マクロパターン: [A-Z_\d]+（最初は大文字またはアンダースコア）
-    macro_pattern = re.compile(r'\b([A-Z_][A-Z_\d]*)\s*\()')
+    macro_pattern = re.compile(r'\b([A-Z_][A-Z_\d]*)\s*\(')
     
     # start_line_numの次の行から開始（start_line_numは0-indexed）
     for i in range(start_line_num + 1, len(lines)):
